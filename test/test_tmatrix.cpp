@@ -2,6 +2,8 @@
 
 #include <gtest.h>
 
+#define SIZE 100
+
 TEST(TMatrix, can_create_matrix_with_positive_length)
 {
   ASSERT_NO_THROW(TMatrix<int> m(5));
@@ -26,147 +28,186 @@ TEST(TMatrix, can_create_copied_matrix)
 
 TEST(TMatrix, copied_matrix_is_equal_to_source_one)
 {
-	TMatrix<int> a(10);
-	for (int i = 0; i < 10; i++)
-		a[i][i] = i;
-	TMatrix<int> b(a);
-	EXPECT_EQ(a, b);
+	TMatrix <int> m1(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			m1[i][j] = i + j;
+	TMatrix <int> m2(m1);
+	EXPECT_EQ(m1.GetSize(), m2.GetSize());
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			EXPECT_EQ(i + j, m2[i][j]);
 }
 
 TEST(TMatrix, copied_matrix_has_its_own_memory)
 {
-	TMatrix<int> a(10);
-	a[1][2] = 0;
-	TMatrix<int> b(a);
-	b[1][2] = 100;
-
-	EXPECT_NE(a[1][2], b[1][2]);
+	TMatrix <int> m1(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			m1[i][j] = i + j;
+	TMatrix <int> m2(m1);
+	EXPECT_TRUE(&m2 != &m1);
 }
 
 TEST(TMatrix, can_get_size)
 {
-	TMatrix<int> a(10);
+	TMatrix<int> a(SIZE);
 	ASSERT_NO_THROW(a.GetSize());
-	EXPECT_EQ(10, a.GetSize());
+	EXPECT_EQ(SIZE, a.GetSize());
 }
 
 TEST(TMatrix, can_set_and_get_element)
 {
-	TMatrix<int> a(10);
-	a[1][2] = 10;
-	EXPECT_EQ(10, a[1][2]);
+	TMatrix<int> m(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			m[i][j] = i + j;
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			EXPECT_EQ(i + j, m[i][j]);
 }
 
 TEST(TMatrix, throws_when_set_element_with_negative_index)
 {
-	TMatrix<int> a(10);
-	ASSERT_ANY_THROW(a[1][-1] = 10);
+	TMatrix<int> a(SIZE);
+	ASSERT_ANY_THROW(a[1][-42] = 100);
 }
 
 TEST(TMatrix, throws_when_set_element_with_too_large_index)
 {
-	TMatrix<int> a(10);
-	ASSERT_ANY_THROW(a[1][100] = 10);
+	TMatrix<int> a(SIZE);
+	ASSERT_ANY_THROW(a[1][SIZE + 1] = 10);
 }
 
 TEST(TMatrix, can_assign_matrix_to_itself)
 {
-	TMatrix<int> a(10);
-	a[2][3] = 1;
-	ASSERT_NO_THROW(a = a);
+	TMatrix<int> m(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			m[i][j] = i + j;
+	ASSERT_NO_THROW(m = m);
+	m = m;
+	EXPECT_EQ(SIZE, m.GetSize());
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			EXPECT_EQ(i + j, m[i][j]);
 }
 
 TEST(TMatrix, can_assign_matrices_of_equal_size)
 {
-	TMatrix<int> a(10), b(10), c(10);
-	a[1][1] = 10;
-	c[1][1] = 10;
-	ASSERT_NO_THROW(b = a);
-	EXPECT_EQ(c, b);
+	TMatrix<int> m1(SIZE), m2(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			m1[i][j] = 0;
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			m2[i][j] = j;
+	ASSERT_NO_THROW(m1 = m2);
+	m1 = m2;
+	EXPECT_EQ(SIZE, m1.GetSize());
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			EXPECT_EQ(j, m1[i][j]);
 }
 
 TEST(TMatrix, assign_operator_change_matrix_size)
 {
-	TMatrix<int> a(10), b(100);
-	a[1][1] = 1;
-	ASSERT_NO_THROW(a = b);
-	EXPECT_EQ(100, a.GetSize());
+  TMatrix<int> a(SIZE), b(SIZE + 1);
+  for (int i = 0; i < SIZE; i++)
+    for (int j = i; j < SIZE; j++)
+      a[i][j] = i;
+  ASSERT_NO_THROW(b = a);
+  b = a;
+  EXPECT_EQ(SIZE, b.GetSize());
 }
 
 TEST(TMatrix, can_assign_matrices_of_different_size)
 {
-	TMatrix<int> a(10), b(100), c(10);
-	a[1][1] = 5;
-	c[1][1] = 5;
+	TMatrix<int> a(SIZE), b(SIZE + 1);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			a[i][j] = i;
+	for (int i = 0; i < SIZE + 1; i++)
+		for (int j = i; j < SIZE + 1; j++)
+			b[i][j] = j;
 	ASSERT_NO_THROW(b = a);
-	EXPECT_EQ(c, b);
+	b = a;
+	EXPECT_EQ(SIZE, b.GetSize());
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			EXPECT_EQ(i, b[i][j]);
 }
 
 TEST(TMatrix, compare_equal_matrices_return_true)
 {
-	TMatrix<int> a(10), b(10);
-	a[1][1] = 1;
-	b[1][1] = 1;
-	ASSERT_TRUE(a == b);
+	TMatrix<int> m1(SIZE), m2(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++) {
+			m1[i][j] = m2[i][j] = i + j;
+		}
+	EXPECT_TRUE(m1 == m2);
 }
 
 TEST(TMatrix, compare_matrix_with_itself_return_true)
 {
-	TMatrix<int> a(10);
-	a[1][1] = 1;
-	ASSERT_TRUE(a == a);
+	TMatrix<int> m(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			m[i][j] = i;
+	EXPECT_TRUE(m == m);
 }
 
 TEST(TMatrix, matrices_with_different_size_are_not_equal)
 {
-	TMatrix<int> a(10), b(100);
-	a[1][1] = 1;
-	b[1][1] = 1;
-	EXPECT_NE(a, b);
-
+	TMatrix<int> m1(SIZE), m2(SIZE + 1);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			m1[i][j] = j;
+	for (int i = 0; i < 3; i++)
+		for (int j = i; j < SIZE + 1; j++)
+			m2[i][j] = j;
+	EXPECT_TRUE(m1 != m2);
 }
 
 TEST(TMatrix, can_add_matrices_with_equal_size)
 {
-	TMatrix<int> a(10), b(10), c(10);
-	a[1][1] = 10;
-	a[2][3] = 11;
-	b[1][1] = 10;
-	b[2][3] = 1;
-	b[3][1] = 1;
-	c[1][1] = 20;
-	c[2][3] = 12;
-	c[3][1] = 1;
-	EXPECT_EQ(c, a + b);
+	TMatrix<int> a(SIZE), b(SIZE), c(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+		{
+			a[i][j] = i;
+			b[i][j] = j;
+		}
+	ASSERT_NO_THROW(a + b);
+	c = a + b;
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			EXPECT_EQ(i + j, c[i][j]);
 }
 
 TEST(TMatrix, cant_add_matrices_with_not_equal_size)
 {
-	TMatrix<int> a(5), b(10);
-	a[1][1] = 5;
-	b[1][1] = 4;
-	ASSERT_ANY_THROW(a + b);
+	TMatrix<int> m1(SIZE), m2(SIZE + 1);
+	ASSERT_ANY_THROW(m1 + m2);
 }
 
 TEST(TMatrix, can_subtract_matrices_with_equal_size)
 {
-	TMatrix<int> a(10), b(10), c(10);
-	a[1][1] = 20;
-	a[2][3] = 10;
-	b[1][1] = 10;
-	b[2][3] = 5;
-	b[3][1] = 1;
-	c[1][1] = 10;
-	c[2][3] = 5;
-	c[3][1] = -1;
-	EXPECT_EQ(c, a - b);
-}
+	TMatrix<int> a(SIZE), b(SIZE), c(SIZE);
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+		{
+			a[i][j] = i;
+			b[i][j] = j;
+		}
+	ASSERT_NO_THROW(a - b);
+	c = a - b;
+	for (int i = 0; i < SIZE; i++)
+		for (int j = i; j < SIZE; j++)
+			EXPECT_EQ(i - j, c[i][j]);}
 
 TEST(TMatrix, cant_subtract_matrixes_with_not_equal_size)
 {
-	TMatrix<int> a(10), b(100);
-	a[1][1] = 10;
-	b[1][1] = 100;
-	ASSERT_ANY_THROW(a - b);
-
+	TMatrix<int> m1(SIZE), m2(SIZE + 1);
+	ASSERT_ANY_THROW(m1 - m2);
 }
