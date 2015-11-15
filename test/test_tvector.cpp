@@ -37,7 +37,7 @@ TEST(TVector, copied_vector_is_equal_to_source_one)
 	for (int i = 0; i < SIZE ; i++)
 		v1[i] = i;
 	TVector <int> v2(v1);
-	EXPECT_EQ(v1.GetSize(), v2.GetSize());
+	EXPECT_EQ(SIZE, v2.GetSize());
 	for (int i = 0; i < SIZE; i++)
 		EXPECT_EQ(i, v2[i]);
 }
@@ -48,7 +48,10 @@ TEST(TVector, copied_vector_has_its_own_memory)
 	for (int i = 0; i < SIZE; i++)
 		v1[i] = i;
 	TVector <int> v2(v1);
-	EXPECT_TRUE(&v1 != &v2);
+	for (int i = 0; i < SIZE; i++)
+		v2[i] = i + 1;
+	for (int i = 0; i < SIZE; i++)
+		EXPECT_EQ(i + 1, v2[i]);
 }
 
 TEST(TVector, can_get_size)
@@ -90,7 +93,6 @@ TEST(TVector, can_assign_vector_to_itself)
 	for (int i = 0; i < SIZE; i++)
 		v[i] = i;
 	ASSERT_NO_THROW(v = v);
-	v = v;
 	EXPECT_EQ(SIZE, v.GetSize());
 	for (int i = 0; i < SIZE; i++)
 		EXPECT_EQ(i, v[i]);
@@ -103,9 +105,7 @@ TEST(TVector, can_assign_vectors_of_equal_size)
 		v1[i] = i;
 	for (int i = 0; i < SIZE; i++)
 		v2[i] = 42 * i;
-	/*ASSERT_NO_THROW(v1 = v2);*/
-	v1 = v2;
-	int a = 0;
+	ASSERT_NO_THROW(v1 = v2);
 	EXPECT_EQ(SIZE, v1.GetSize());
 	for (int i = 0; i < SIZE; i++)
 		EXPECT_EQ(42 * i, v1[i]);
@@ -116,7 +116,6 @@ TEST(TVector, assign_operator_change_vector_size)
 	TVector<int> v1(SIZE);
 	TVector<int> v2(SIZE + 1);
 	ASSERT_NO_THROW(v1 = v2);
-	v1 = v2;
 	EXPECT_EQ(SIZE + 1, v1.GetSize());
 }
 
@@ -128,7 +127,6 @@ TEST(TVector, can_assign_vectors_of_different_size)
 	for (int i = 0; i < SIZE + 1; i++)
 		v2[i] = 42 * i;
 	ASSERT_NO_THROW(v1 = v2);
-	v1 = v2;
 	EXPECT_EQ(SIZE + 1, v1.GetSize());
 	for (int i = 0; i < SIZE; i++)
 		EXPECT_EQ(42 * i, v1[i]);
