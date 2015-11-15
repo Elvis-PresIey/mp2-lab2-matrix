@@ -53,10 +53,8 @@ public:
   }
   friend ostream& operator<<(ostream &out, const TVector &v)
   {
-	for (int i = 0; i < v.StartIndex; i++)
-		out << "0 ";
-	for (int i = v.StartIndex; i < v.Size; i++)
-		out << v.pVector[i]<<" ";
+	for (int i = 0; i < v.Size; i++)
+      out << v.pVector[i] << " ";
     return out;
   }
 };
@@ -209,8 +207,11 @@ public:
   }
   friend ostream & operator<<( ostream &out, const TMatrix &mt)
   {
-    for (int i = 0; i < mt.Size; i++)
-      out << mt.pVector[i] << endl;
+	for (int i = 0; i < mt.Size; i++) {
+		for (int j = 0; j < i; j++)
+			out << "0 ";
+		out << mt.pVector[i] << endl;
+	}
     return out;
   }
 };
